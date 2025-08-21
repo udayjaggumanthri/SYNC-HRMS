@@ -8094,7 +8094,7 @@ body {
 }
 
 .oh-btn--secondary {
-  background-color: hsl(8, 77%, 56%);
+  background: linear-gradient(180deg, #1e40af 0%, #2563eb 100%);
   color: hsl(0, 0%, 100%);
   text-decoration: none;
 }
@@ -10495,6 +10495,7 @@ select.oh-select--lg {
 .oh-sidebar__submenu-link:hover, .oh-sidebar__submenu-link:focus, .oh-sidebar__submenu-link:focus-visible, .oh-sidebar__submenu-link:visited {
   color: white;
   text-decoration: none;
+  list-style: none;
 }
 
 .oh-sidebar__transition {

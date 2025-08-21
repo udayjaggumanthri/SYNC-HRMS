@@ -55,10 +55,205 @@ function initializeSummernote(candId,searchWords,) {
 
 <style>
   .oh-sidebar__submenu-items_re li::before {
-    content: "★";
-    color:rgb(231, 105, 85);
-    font-size: 15px;
-    padding-right: 4px;
+    content: none;
+  }
+  
+  /* Modern Blue & White Sidebar Theme */
+  .oh-sidebar {
+    background: linear-gradient(180deg, #1e40af 0%, #2563eb 100%);
+    box-shadow: 2px 0 20px rgba(37, 99, 235, 0.15);
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+    font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+  
+  .oh-sidebar__company {
+    background: rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+  }
+  
+  .oh-sidebar__company:hover {
+    background: rgba(255, 255, 255, 0.15);
+  }
+  
+  .oh-sidebar__company-title {
+    color: #ffffff !important;
+    font-weight: 600 !important;
+    font-size: 14px !important;
+    letter-spacing: 0.5px;
+  }
+  
+  .oh-sidebar__company-link {
+    color: rgba(255, 255, 255, 0.8) !important;
+    font-size: 11px !important;
+    text-decoration: none;
+    transition: color 0.3s ease;
+  }
+  
+  .oh-sidebar__company-link:hover {
+    color: #ffffff !important;
+  }
+  
+  .oh-sidebar__menu {
+    padding: 20px 0;
+  }
+  
+  .oh-sidebar__menu-item {
+    margin-bottom: 8px;
+  }
+  
+  .oh-sidebar__menu-link {
+    display: flex;
+    align-items: center;
+    padding: 12px 20px;
+    color: rgba(255, 255, 255, 0.9);
+    text-decoration: none;
+    border-radius: 0 25px 25px 0;
+    margin-right: 15px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    font-weight: 500;
+    font-size: 14px;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .oh-sidebar__menu-link::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    transition: left 0.5s ease;
+  }
+  
+  .oh-sidebar__menu-link:hover::before {
+    left: 100%;
+  }
+  
+  .oh-sidebar__menu-link:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: #ffffff;
+    transform: translateX(5px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  }
+  
+  .oh-sidebar__menu-link--active {
+    background: #0c4bc04d;
+    color: #ffffff !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    font-weight: 600;
+  }
+  
+  .oh-sidebar__menu-link--active .oh-sidebar__menu-icon img {
+filter: brightness(0) saturate(100%) invert(100%) !important;
+
+}
+  
+  .oh-sidebar__menu-link--active svg {
+    fill: #ffffff !important;
+  }
+  
+  .oh-sidebar__menu-icon {
+    margin-right: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+  }
+  
+  .oh-sidebar__menu-icon img {
+    filter: brightness(0) invert(1);
+    transition: all 0.3s ease;
+  }
+  
+  .oh-sidebar__submenu {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 0 15px 15px 0;
+    margin: 8px 15px 0 0;
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  
+  .oh-sidebar__submenu-items {
+    padding: 10px 0;
+    list-style: none;
+    margin: 0;
+  }
+  
+  .oh-sidebar ul {
+  list-style: none;   /* removes default bullets */
+  padding-left: 0;         /* removes extra left padding */
+  margin-left: 0;          /* ensures alignment */
+  }
+  
+  .oh-sidebar li {
+    list-style: none !important;
+    list-style-type: none !important;
+  }
+  
+  .oh-sidebar ul li {
+    list-style: none !important;
+    list-style-type: none !important;
+  }
+  
+  .oh-sidebar ul li::before {
+    content: none !important;
+  }
+  
+  .oh-sidebar__submenu-item {
+    margin-bottom: 4px;
+  }
+  
+  .oh-sidebar__submenu-link {
+    display: block;
+    padding: 10px 20px 10px 45px;
+    color: rgba(255, 255, 255, 0.8);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 400;
+    transition: all 0.3s ease;
+    border-radius: 0 20px 20px 0;
+    margin-right: 10px;
+    position: relative;
+  }
+  
+  .oh-sidebar__submenu-link::before {
+    content: none;
+  }
+  
+  .oh-sidebar__submenu-link:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+    transform: translateX(3px);
+  }
+  
+
+  
+  /* Scrollbar Styling */
+  .oh-sidebar::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  .oh-sidebar::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+  }
+  
+  .oh-sidebar::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 3px;
+  }
+  
+  .oh-sidebar::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.5);
+  }
+  
+  /* Animation for submenu */
+  .oh-sidebar__submenu[x-show] {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 </style>
 
@@ -309,10 +504,11 @@ function initializeSummernote(candId,searchWords,) {
 </div>
 <style>
   .highlight-selected{
-    background-color: rgba(255, 68, 0, 0.134);
+    background-color: rgba(37, 99, 235, 0.15);
+    border-left: 3px solid #2563eb;
   }
   .highlight-selected:hover{
-    background-color: rgba(255, 68, 0, 0.1);
+    background-color: rgba(37, 99, 235, 0.2);
   }
   .fade-me-out.htmx-swapping {
 		opacity: 0;

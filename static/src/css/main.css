@@ -11687,6 +11687,7 @@ select.oh-select--lg {
 .oh-sidebar__submenu-link:hover, .oh-sidebar__submenu-link:focus, .oh-sidebar__submenu-link:focus-visible, .oh-sidebar__submenu-link:visited {
   color: white;
   text-decoration: none;
+  list-style: none;
 }
 
 .oh-sidebar__transition {
