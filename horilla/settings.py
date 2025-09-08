@@ -68,6 +68,7 @@ INSTALLED_APPS = [
     "payroll",
     "widget_tweaks",
     "django_apscheduler",
+    "chart_bot",  # Chart Bot - AI HR Assistant
 ]
 APSCHEDULER_DATETIME_FORMAT = "N j, Y, f:s a"
 
@@ -86,6 +87,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "chart_bot.middleware_direct.DirectChartBotMiddleware",  # Direct Chart Bot widget injection (bypasses auth issues)
 ]
 
 ROOT_URLCONF = "horilla.urls"

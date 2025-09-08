@@ -43,6 +43,9 @@ urlpatterns = [
     path("i18n/", include("django.conf.urls.i18n")),
     path("health/", health_check),
     path("api/v1/", include("horilla_api.urls")),
+    path("chart-bot/", include("chart_bot.urls")),  # Chart Bot URLs
+    path("chart-bot-v2/", include("chart_bot.urls_v2")),  # Professional Chart Bot URLs
+    path("chart-bot-direct/", include("chart_bot.urls_direct")),  # Direct Chart Bot URLs (bypasses auth issues)
     
 ]
 
