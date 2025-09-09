@@ -12,6 +12,10 @@
                         <div class="time-runner"></div>
                         {% endif %}
                     </button>
+                    <a href="{% url 'face-attendance-interface' %}" class="oh-btn oh-btn--info-outline mr-2" title="{% trans 'Face Recognition Attendance' %}">
+                        <ion-icon class="oh-navbar__clock-icon mr-2 text-info" name="scan-outline"></ion-icon>
+                        <span class="hr-Check-In-out-text">{% trans "Face Recognition" %}</span>
+                    </a>
                     <script>
                         run = 1
                     </script>
@@ -23,6 +27,10 @@
                         <span class="hr-Check-In-out-text" {% if enabled_timerunner %} style="display: none;" {% endif %}>{% trans "Check-In" %}</span>
                         <div class="at-work-seconds"></div>
                     </button>
+                    <a href="{% url 'face-attendance-interface' %}" class="oh-btn oh-btn--info-outline mr-2" title="{% trans 'Face Recognition Attendance' %}">
+                        <ion-icon class="oh-navbar__clock-icon mr-2 text-info" name="scan-outline"></ion-icon>
+                        <span class="hr-Check-In-out-text">{% trans "Face Recognition" %}</span>
+                    </a>
                     {% if enabled_timerunner %}
                         <script>
                             $(document).ready(function () {
