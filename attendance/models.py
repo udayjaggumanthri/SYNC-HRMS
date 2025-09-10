@@ -47,6 +47,16 @@ class AttendanceActivity(HorillaModel):
     AttendanceActivity model
     """
 
+    VERIFICATION_METHODS = [
+        ('manual', _('Manual Entry')),
+        ('biometric', _('Biometric Device')),
+        ('face_recognition', _('Face Recognition')),
+        ('card_swipe', _('Card Swipe')),
+        ('mobile_app', _('Mobile App')),
+        ('web_portal', _('Web Portal')),
+        ('api', _('API Integration')),
+    ]
+
     employee_id = models.ForeignKey(
         Employee,
         on_delete=models.PROTECT,
@@ -70,6 +80,18 @@ class AttendanceActivity(HorillaModel):
     clock_out_date = models.DateField(null=True, verbose_name=_("Out Date"))
     out_datetime = models.DateTimeField(null=True)
     clock_out = models.TimeField(null=True, verbose_name=_("Check Out"))
+    verification_method = models.CharField(
+        max_length=20,
+        choices=VERIFICATION_METHODS,
+        default='manual',
+        verbose_name=_("Verification Method")
+    )
+    device_location = models.CharField(
+        max_length=255,
+        null=True,
+        blank=True,
+        verbose_name=_("Device/Location")
+    )
     objects = HorillaCompanyManager(
         related_company_field="employee_id__employee_work_info__company_id"
     )

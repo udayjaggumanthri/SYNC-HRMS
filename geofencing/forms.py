@@ -19,3 +19,4 @@ class GeoFencingSetupForm(ModelForm):
         context = {"form": self}
         table_html = render_to_string("common_form.html", context)
         return table_html
+

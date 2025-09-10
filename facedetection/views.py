@@ -16,6 +16,7 @@ from facedetection.forms import FaceDetectionSetupForm
 from horilla.decorators import hx_request_required
 
 from .serializers import *
+from .models import FaceDetection, EmployeeFaceDetection
 
 
 class FaceDetectionConfigAPIView(APIView):
@@ -125,44 +126,63 @@ def get_company(request):
             return None
         company = Company.objects.get(id=selected_company)
         return company
+    except Company.DoesNotExist:
+        return None
     except Exception as e:
-        raise serializers.ValidationError(e)
+        return None
 
 
 def get_facedetection(request):
     company = get_company(request)
     try:
-        location = FaceDetection.objects.get(company_id=company)
-        return location
+        facedetection = FaceDetection.objects.get(company_id=company)
+        return facedetection
+    except FaceDetection.DoesNotExist:
+        return None
     except Exception as e:
-        raise serializers.ValidationError(e)
+        return None
 
 
 @login_required
 @permission_required("geofencing.add_localbackup")
 @hx_request_required
 def face_detection_config(request):
-    try:
-        form = FaceDetectionSetupForm(instance=get_facedetection(request))
-    except:
-        form = FaceDetectionSetupForm()
-
+    # Get existing face detection instance
+    existing_facedetection = get_facedetection(request)
+    company = get_company(request)
+    
     if request.method == "POST":
-        try:
-            form = FaceDetectionSetupForm(
-                request.POST, instance=get_facedetection(request)
-            )
-        except:
-            form = FaceDetectionSetupForm(request.POST)
+        form = FaceDetectionSetupForm(request.POST, instance=existing_facedetection)
         if form.is_valid():
-            facedetection = form.save(
-                commit=False,
-            )
-            facedetection.company_id = get_company(request)
-            facedetection.save()
-            messages.success(request, _("facedetection config created successfully."))
+            try:
+                # Get or create FaceDetection for the company
+                facedetection, created = FaceDetection.objects.get_or_create(
+                    company_id=company,
+                    defaults={'start': False}
+                )
+                
+                # Update the start field
+                facedetection.start = form.cleaned_data['start']
+                facedetection.save()
+                
+                if created:
+                    messages.success(request, _("Face detection configuration created successfully."))
+                else:
+                    messages.success(request, _("Face detection configuration updated successfully."))
+                return redirect('face-config')  # Redirect to prevent duplicate submissions
+            except Exception as e:
+                messages.error(request, f"Error saving configuration: {str(e)}")
         else:
-            messages.info(request, "Not valid")
+            # Show specific form errors
+            error_messages = []
+            for field, errors in form.errors.items():
+                for error in errors:
+                    error_messages.append(f"{field}: {error}")
+            messages.error(request, f"Please correct the following errors: {'; '.join(error_messages)}")
+    else:
+        # GET request - show form with existing data
+        form = FaceDetectionSetupForm(instance=existing_facedetection)
+    
     return render(request, "face_config.html", {"form": form})
 
 
@@ -359,9 +379,33 @@ def face_attendance_interface(request):
                 'message': _('Please register your face image first in your profile before using face recognition attendance.')
             })
         
+        # Get the action parameter (checkin or checkout)
+        action = request.GET.get('action', 'checkin')
+        
+        # Check current attendance status
+        from attendance.models import Attendance
+        from datetime import date
+        
+        today = date.today()
+        current_attendance = Attendance.objects.filter(
+            employee_id=employee,
+            attendance_date=today,
+            attendance_clock_out__isnull=True
+        ).first()
+        
+        # Determine the appropriate action based on current status
+        if current_attendance:
+            # Employee is already clocked in, so they should clock out
+            action = 'checkout'
+        else:
+            # Employee is not clocked in, so they should clock in
+            action = 'checkin'
+        
         return render(request, 'facedetection/face_attendance_interface.html', {
             'employee_face': employee_face,
-            'employee': employee
+            'employee': employee,
+            'action': action,
+            'current_attendance': current_attendance
         })
         
     except Exception as e:
@@ -435,25 +479,105 @@ def face_attendance_clock_in(request):
                 })
             
             if recognition_success:
-                # Call the existing clock in function
-                from attendance.views.clock_in_out import clock_in
-                response = clock_in(request)
+                # Create comprehensive attendance record with face recognition
+                from .models import FaceRecognitionAttendanceLog
+                from datetime import datetime, date, time
+                from attendance.models import Attendance, AttendanceActivity, EmployeeShiftDay
+                from attendance.methods.utils import strtime_seconds
+                from attendance.views.clock_in_out import late_come
                 
-                if response.status_code == 200:
+                try:
+                    # Get current date and time
+                    now = datetime.now()
+                    today = now.date()
+                    current_time = now.time()
+                    
+                    # Get employee work info
+                    work_info = employee.employee_work_info
+                    shift = work_info.shift_id
+                    
+                    # Get shift day
+                    day_name = today.strftime("%A").lower()
+                    try:
+                        day = EmployeeShiftDay.objects.get(day=day_name)
+                    except EmployeeShiftDay.DoesNotExist:
+                        day = None
+                    
+                    # Calculate shift schedule
+                    if shift and day:
+                        from attendance.methods.utils import shift_schedule_today
+                        minimum_hour, start_time_sec, end_time_sec = shift_schedule_today(day=day, shift=shift)
+                    else:
+                        minimum_hour = "08:00"  # Default minimum hour
+                        start_time_sec = 0
+                        end_time_sec = 0
+                    
+                    # Create or update attendance activity with face recognition verification
+                    attendance_activity = AttendanceActivity.objects.create(
+                        employee_id=employee,
+                        attendance_date=today,
+                        clock_in_date=today,
+                        shift_day=day,
+                        clock_in=current_time,
+                        in_datetime=now,
+                        verification_method='face_recognition',
+                        device_location=f"Face Recognition System - {request.META.get('REMOTE_ADDR', 'Unknown IP')}"
+                    )
+                    
+                    # Create or update attendance record
+                    attendance, created = Attendance.objects.get_or_create(
+                        employee_id=employee,
+                        attendance_date=today,
+                        defaults={
+                            'shift_id': shift,
+                            'work_type_id': work_info.work_type_id,
+                            'attendance_day': day,
+                            'attendance_clock_in': current_time,
+                            'attendance_clock_in_date': today,
+                            'minimum_hour': minimum_hour,
+                            'attendance_validated': True,  # Auto-validate face recognition attendance
+                        }
+                    )
+                    
+                    if not created:
+                        # Update existing attendance
+                        attendance.attendance_clock_out = None
+                        attendance.attendance_clock_out_date = None
+                        attendance.attendance_validated = True
+                        attendance.save()
+                    
+                    # Check for late arrival
+                    if shift and day and start_time_sec > 0:
+                        late_come(attendance=attendance, start_time=start_time_sec, end_time=end_time_sec, shift=shift)
+                    
+                    # Store captured image as proof of attendance
+                    attendance_log = FaceRecognitionAttendanceLog.objects.create(
+                        employee_id=employee,
+                        attendance_id=attendance,
+                        captured_image=captured_image,
+                        action='check_in',
+                        recognition_confidence=recognition_result.get('confidence', None),
+                        ip_address=request.META.get('REMOTE_ADDR'),
+                        user_agent=request.META.get('HTTP_USER_AGENT', '')[:500]
+                    )
+                    
                     return JsonResponse({
                         'success': True,
-                        'message': _('Face recognition successful! Clocked in successfully.'),
-                        'html': response.content.decode('utf-8')
+                        'message': _('✅ Face recognition successful! Attendance marked automatically.'),
+                        'attendance_id': attendance.id,
+                        'verification_method': 'Face Recognition',
+                        'redirect_url': '/attendance/view-my-attendance/'
                     })
-                else:
+                    
+                except Exception as e:
                     return JsonResponse({
                         'success': False,
-                        'message': _('Clock in failed. Please try again.')
+                        'message': _('❌ Error creating attendance record. Please try again.')
                     })
             else:
                 return JsonResponse({
                     'success': False,
-                    'message': _('Face recognition failed. Please ensure your face is clearly visible and try again.')
+                    'message': _('Face not recognized, please try again.')
                 })
                 
         except Exception as e:
@@ -533,25 +657,77 @@ def face_attendance_clock_out(request):
                 })
             
             if recognition_success:
-                # Call the existing clock out function
-                from attendance.views.clock_in_out import clock_out
-                response = clock_out(request)
+                # Create comprehensive clock-out with face recognition
+                from .models import FaceRecognitionAttendanceLog
+                from datetime import datetime, date, time
+                from attendance.models import Attendance, AttendanceActivity
+                from attendance.methods.utils import strtime_seconds
                 
-                if response.status_code == 200:
+                try:
+                    # Get current date and time
+                    now = datetime.now()
+                    today = now.date()
+                    current_time = now.time()
+                    
+                    # Get the attendance record for today
+                    attendance = Attendance.objects.filter(
+                        employee_id=employee,
+                        attendance_date=today,
+                        attendance_clock_out__isnull=True
+                    ).first()
+                    
+                    if not attendance:
+                        return JsonResponse({
+                            'success': False,
+                            'message': _('❌ No active attendance record found. Please clock in first.')
+                        })
+                    
+                    # Update attendance record with clock-out
+                    attendance.attendance_clock_out = current_time
+                    attendance.attendance_clock_out_date = today
+                    attendance.save()
+                    
+                    # Update the latest attendance activity with clock-out
+                    latest_activity = AttendanceActivity.objects.filter(
+                        employee_id=employee,
+                        attendance_date=today,
+                        clock_out__isnull=True
+                    ).order_by('-clock_in').first()
+                    
+                    if latest_activity:
+                        latest_activity.clock_out = current_time
+                        latest_activity.clock_out_date = today
+                        latest_activity.out_datetime = now
+                        latest_activity.save()
+                    
+                    # Store captured image as proof of attendance
+                    attendance_log = FaceRecognitionAttendanceLog.objects.create(
+                        employee_id=employee,
+                        attendance_id=attendance,
+                        captured_image=captured_image,
+                        action='check_out',
+                        recognition_confidence=recognition_result.get('confidence', None),
+                        ip_address=request.META.get('REMOTE_ADDR'),
+                        user_agent=request.META.get('HTTP_USER_AGENT', '')[:500]
+                    )
+                    
                     return JsonResponse({
                         'success': True,
-                        'message': _('Face recognition successful! Clocked out successfully.'),
-                        'html': response.content.decode('utf-8')
+                        'message': _('✅ Face recognition successful! Clock-out completed automatically.'),
+                        'attendance_id': attendance.id,
+                        'verification_method': 'Face Recognition',
+                        'redirect_url': '/attendance/view-my-attendance/'
                     })
-                else:
+                    
+                except Exception as e:
                     return JsonResponse({
                         'success': False,
-                        'message': _('Clock out failed. Please try again.')
+                        'message': _('❌ Error updating attendance record. Please try again.')
                     })
             else:
                 return JsonResponse({
                     'success': False,
-                    'message': _('Face recognition failed. Please ensure your face is clearly visible and try again.')
+                    'message': _('Face not recognized, please try again.')
                 })
                 
         except Exception as e:
