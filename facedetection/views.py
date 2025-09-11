@@ -1,3 +1,4 @@
+import warnings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.http import QueryDict, JsonResponse
@@ -10,6 +11,9 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
+
+# Suppress pkg_resources deprecation warning from face_recognition_models
+warnings.filterwarnings("ignore", message="pkg_resources is deprecated", category=UserWarning)
 
 from base.models import Company
 from facedetection.forms import FaceDetectionSetupForm
@@ -106,11 +110,11 @@ class EmployeeFaceDetectionGetPostAPIView(APIView):
 
     def post(self, request):
         if self.get_facedetection(request).start:
-            employee_id = request.user.employee_get.id
+            employee = request.user.employee_get
             data = request.data
             if isinstance(data, QueryDict):
                 data = data.dict()
-            data["employee_id"] = employee_id
+            data["employee_id"] = employee
             serializer = EmployeeFaceDetectionSerializer(data=data)
             if serializer.is_valid():
                 serializer.save()
@@ -352,6 +356,7 @@ def employee_profile_with_face(request):
 
 
 @login_required
+@require_http_methods(["GET", "POST"])
 def face_attendance_interface(request):
     """
     Display the face recognition attendance interface

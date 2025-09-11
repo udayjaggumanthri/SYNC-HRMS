@@ -4,17 +4,6 @@ from employee.models import Employee
 from django.contrib.auth import get_user_model
 
 
-class GetEmployeeSerializer(serializers.ModelSerializer):
-    full_name = serializers.SerializerMethodField()
-
-    class Meta:
-        model = Employee
-        fields = ["id", "full_name", "employee_profile"]
-
-    def get_full_name(self, obj):
-        return obj.get_full_name()
-
-
 class ForgotPasswordSerializer(serializers.Serializer):
     email = serializers.EmailField()
 
@@ -75,15 +64,15 @@ class GetEmployeeSerializer(serializers.ModelSerializer):
 
     def get_department(self, obj):
         dept = obj.get_department()
-        return dept.name if dept else None
+        return dept.department if dept else None
 
     def get_job_position(self, obj):
         pos = obj.get_job_position()
-        return pos.title if pos else None
+        return pos.job_position if pos else None
 
     def get_shift(self, obj):
         shift = obj.get_shift()
-        return shift.name if shift else None
+        return shift.shift_name if shift else None
 
     def get_reporting_manager(self, obj):
         mgr = obj.get_reporting_manager()
@@ -91,18 +80,14 @@ class GetEmployeeSerializer(serializers.ModelSerializer):
 
     def get_work_type(self, obj):
         wt = obj.get_work_type()
-        return wt.name if wt else None
+        return wt.work_type if wt else None
 
     def get_employee_type(self, obj):
         et = obj.get_employee_type()
-        return et.name if et else None
+        return et.employee_type if et else None
 
     def get_avatar(self, obj):
         return obj.get_avatar()
 
     def get_leave_status(self, obj):
         return obj.get_leave_status()
-    
-    def get_shift(self, obj):
-       shift = obj.get_shift()
-       return shift.shift_name if shift else None

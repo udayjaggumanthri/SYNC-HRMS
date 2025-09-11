@@ -22,6 +22,7 @@ from django.urls import include, path, re_path
 import notifications.urls
 
 from . import settings
+from base.views import custom405
 
 
 def health_check(request):
@@ -43,11 +44,15 @@ urlpatterns = [
     path("i18n/", include("django.conf.urls.i18n")),
     path("health/", health_check),
     path("api/v1/", include("horilla_api.urls")),
+    path("api/facedetection/", include("facedetection.urls")),  # Face Detection URLs
     path("chart-bot/", include("chart_bot.urls")),  # Chart Bot URLs
     path("chart-bot-v2/", include("chart_bot.urls_v2")),  # Professional Chart Bot URLs
     path("chart-bot-direct/", include("chart_bot.urls_direct")),  # Direct Chart Bot URLs (bypasses auth issues)
     
 ]
+
+# Add custom error handlers
+handler405 = custom405
 
 # if settings.DEBUG:
 #     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

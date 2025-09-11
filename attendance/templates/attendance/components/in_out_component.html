@@ -28,6 +28,7 @@
                             <span class="hr-Check-In-out-text">{% trans "Check-In" %}</span>
                         </a>
                         <!-- Alternative: Direct Check-In Button (fallback) -->
+                        <!--
                         <button {% if enabled_timerunner %} onmouseenter="$(this).find('span').show();$(this).find('.at-work-seconds').hide();" onmouseleave="$(this).find('span').hide();$(this).find('.at-work-seconds').show();" {% endif %}
                             class="oh-btn oh-btn--secondary-outline mr-2" hx-get="{% url 'clock-in' %}"  hx-target='#attendance-activity-container' hx-swap='innerHTML'
                             title="{% trans 'Direct Check-In (without face recognition)' %}">
@@ -35,6 +36,7 @@
                             <span class="hr-Check-In-out-text" {% if enabled_timerunner %} style="display: none;" {% endif %}>{% trans "Direct Check-In" %}</span>
                             <div class="at-work-seconds"></div>
                         </button>
+                        -->
                     {% else %}
                         <!-- Traditional Check-In Button (when face detection is disabled) -->
                         <button {% if enabled_timerunner %} onmouseenter="$(this).find('span').show();$(this).find('.at-work-seconds').hide();" onmouseleave="$(this).find('span').hide();$(this).find('.at-work-seconds').show();" {% endif %}

@@ -402,6 +402,113 @@ form label {
     overflow-y: scroll;
 }
 
+/* Attendance buttons horizontal layout */
+#attendance-activity-container {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+/* Fix for 404/405 page background issue */
+body {
+    background-color: #ffffff !important;
+    position: relative;
+    z-index: 1;
+    overflow-x: hidden;
+}
+
+.oh-wrapper-main {
+    position: relative;
+    z-index: 10;
+    background-color: #ffffff !important;
+    min-height: 100vh;
+}
+
+#main {
+    position: relative;
+    z-index: 15;
+    background-color: #ffffff !important;
+    min-height: 100vh;
+}
+
+#main-section {
+    position: relative;
+    z-index: 20;
+    background-color: #ffffff !important;
+}
+
+#main-section-data {
+    position: relative;
+    z-index: 25;
+    background-color: #ffffff !important;
+}
+
+/* Ensure all main content containers have proper background */
+.oh-main {
+    background-color: #ffffff !important;
+    position: relative;
+    z-index: 30;
+}
+
+.oh-main__content {
+    background-color: #ffffff !important;
+    position: relative;
+    z-index: 35;
+}
+
+/* Hide any background error pages */
+.error-page-background {
+    display: none !important;
+}
+
+/* Ensure main content covers any background elements */
+.oh-wrapper-main > * {
+    position: relative;
+    z-index: 40;
+}
+
+/* Additional fixes for error page background issues */
+html {
+    background-color: #ffffff !important;
+}
+
+/* Ensure all main containers have proper layering */
+.oh-wrapper {
+    position: relative;
+    z-index: 50;
+    background-color: #ffffff !important;
+}
+
+.oh-main__titlebar {
+    position: relative;
+    z-index: 55;
+    background-color: #ffffff !important;
+}
+
+/* Hide any potential background error elements */
+[class*="error"]:not(.oh-card):not(.oh-btn) {
+    position: relative;
+    z-index: 1;
+}
+
+/* Ensure proper stacking for all content */
+.oh-card {
+    position: relative;
+    z-index: 60;
+    background-color: #ffffff !important;
+}
+
+/* Fix for any floating or absolute positioned error elements */
+.error-floating {
+    display: none !important;
+}
+
+/* Ensure navbar stays on top */
+.oh-navbar {
+    z-index: 100 !important;
+    background-color: #ffffff !important;
+}
+
 @media screen and (max-width: 575.98px) {
     .at-work-seconds {
         font-size: 10px;

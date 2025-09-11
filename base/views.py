@@ -198,6 +198,14 @@ def custom404(request):
     return render(request, "404.html")
 
 
+def custom405(request, exception=None):
+    """
+    Custom 405 method not allowed handler
+    """
+    # Redirect to the main page instead of showing 405 error
+    return redirect('home-page')
+
+
 # Create your views here.
 def is_reportingmanger(request, instance):
     """

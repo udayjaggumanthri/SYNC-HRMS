@@ -9,5 +9,6 @@ urlpatterns = [
     path("payroll/", include("horilla_api.api_urls.payroll.urls")),
     path("attendance/", include("horilla_api.api_urls.attendance.urls")),
     path("leave/", include("horilla_api.api_urls.leave.urls")),
+    path("facedetection/", include("horilla_api.api_urls.facedetection.urls")),
     
 ]
