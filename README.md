@@ -1,382 +1,391 @@
-# **Horilla 🦍** [![LGPL License](https://img.shields.io/badge/license-LGPL-green.svg)](https://www.gnu.org/licenses/lgpl-3.0)  [![Docker](https://img.shields.io/badge/Docker-Horilla-blue?logo=docker)](https://hub.docker.com/r/horilla/horilla)
+# 🏢 Sync HRMS - Complete Human Resource Management System
 
-**Horilla** is a Free and Open Source HRMS (Human Resource Management System) Software designed to streamline HR processes and enhance organizational efficiency.
+[![Django](https://img.shields.io/badge/Django-4.2.21-green.svg)](https://djangoproject.com/)
+[![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)](https://python.org/)
+[![License](https://img.shields.io/badge/License-Open%20Source-orange.svg)](LICENSE)
+[![Status](https://img.shields.io/badge/Status-Active-brightgreen.svg)]()
 
-![Horilla Screenshot](https://github.com/horilla-opensource/horilla/assets/131998600/1317bd0a-03a8-40be-8fb2-ecb655bb5c13)
+**Sync HRMS** is a comprehensive, open-source Human Resource Management System (HRMS) built with Django. It provides a complete solution for managing all aspects of human resources, from recruitment to offboarding, with modern AI-powered features and advanced analytics.
 
----
+## 🌟 Key Features
 
-## **Installation**
+### 📋 Core HR Modules
+- **👥 Employee Management** - Complete employee lifecycle management
+- **📅 Attendance Tracking** - Multiple attendance methods including face recognition
+- **🏖️ Leave Management** - Comprehensive leave request and approval system
+- **💰 Payroll System** - Automated salary calculation and payslip generation
+- **📊 Performance Management** - OKR-based performance tracking
+- **🎯 Project Management** - Task and project tracking with team collaboration
+- **📦 Asset Management** - Company asset tracking and management
+- **🎫 Helpdesk System** - Internal support ticket management
 
-Horilla can be installed on your system by following the steps below. Ensure you have **Python**, **Django**, and a **database** (preferably PostgreSQL) installed as prerequisites.
+### 🤖 AI-Powered Features
+- **Chart Bot** - AI assistant for HR data analysis and insights
+- **Face Recognition** - Biometric attendance using facial recognition
+- **Smart Analytics** - Advanced reporting and data visualization
+- **Automated Workflows** - Intelligent process automation
 
----
+### 🔧 Advanced Capabilities
+- **Multi-Company Support** - Manage multiple companies from single instance
+- **Role-Based Access Control** - Granular permissions and security
+- **Multi-Language Support** - Internationalization ready
+- **REST API** - Complete API for integrations
+- **Real-time Notifications** - Instant updates and alerts
+- **Audit Logging** - Complete activity tracking
+- **Backup & Recovery** - Automated data protection
 
-## **Prerequisites**
+## 🚀 Quick Start
 
-### **1. Python Installation**
+### Prerequisites
+- Python 3.8 or higher
+- PostgreSQL (recommended) or SQLite
+- Node.js (for frontend assets)
+- CMake (for face recognition)
 
-#### **Ubuntu**
-1. Open the terminal and install Python:
+### Installation
+
+1. **Clone the repository**
    ```bash
-   sudo apt-get install python3
+   git clone https://github.com/your-org/sync-hrms.git
+   cd sync-hrms
    ```
-2. Verify the installation:
+
+2. **Create virtual environment**
    ```bash
-   python3 --version
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
    ```
 
-#### **Windows**
-1. Download Python from the [official website](https://www.python.org/downloads/windows/).
-2. During installation, ensure you select **"Add Python to PATH"**.
-3. Verify the installation:
-   ```bash
-   python3 --version
-   ```
-
-#### **macOS**
-1. Install Homebrew (if not already installed):
-   ```bash
-   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-   ```
-2. Install Python:
-   ```bash
-   brew install python
-   ```
-3. Verify the installation:
-   ```bash
-   python3 --version
-   ```
-
----
-
-
-### **2. PostgreSQL Installation**
-
-#### **Ubuntu**
-1. **Update System Packages**:
-   ```bash
-   sudo apt update && sudo apt upgrade -y
-   ```
-
-2. **Install PostgreSQL**:
-   ```bash
-   sudo apt install postgresql postgresql-contrib -y
-   ```
-
-3. **Start and Enable PostgreSQL**:
-   ```bash
-   sudo systemctl start postgresql
-   sudo systemctl enable postgresql
-   ```
-
-4. **Verify Installation**:
-   ```bash
-   psql --version
-   ```
-
-5. **Configure PostgreSQL Database and User**:
-   - Switch to the `postgres` user:
-     ```bash
-     sudo su postgres
-     psql
-     ```
-   - Create a new role and database:
-     ```sql
-     CREATE ROLE horilla LOGIN PASSWORD 'horilla';
-     CREATE DATABASE horilla_main OWNER horilla;
-     \q
-     ```
-   - Exit the `postgres` user:
-     ```bash
-     exit
-     ```
-
----
-
-#### **Windows**
-1. **Download PostgreSQL**:
-   - Download the installer from the [PostgreSQL Official Site](https://www.postgresql.org/download/windows/).
-
-2. **Install PostgreSQL**:
-   - Follow the setup wizard and set a password for the PostgreSQL superuser.
-
-3. **Verify Installation**:
-   ```powershell
-   psql -U postgres
-   ```
-
-4. **Configure PostgreSQL Database and User**:
-   - Access PostgreSQL:
-     ```powershell
-     psql -U postgres
-     ```
-   - Create a new role and database:
-     ```sql
-     CREATE ROLE horilla LOGIN PASSWORD 'horilla';
-     CREATE DATABASE horilla_main OWNER horilla;
-     \q
-     ```
-
----
-
-#### **macOS**
-1. **Install PostgreSQL via Homebrew**:
-   ```bash
-   brew install postgresql
-   ```
-
-2. **Start PostgreSQL**:
-   ```bash
-   brew services start postgresql
-   ```
-
-3. **Verify Installation**:
-   ```bash
-   psql --version
-   ```
-
-4. **Configure PostgreSQL Database and User**:
-   - Create a database and user:
-     ```bash
-     createdb horilla_main
-     createuser horilla
-     psql -c "ALTER USER horilla WITH PASSWORD 'horilla';"
-     ```
-
----
-
-## **Install Horilla**
-
-Follow the steps below to install **Horilla** on your system. Horilla is compatible with **Ubuntu**, **Windows**, and **macOS**.
-
----
-
-### **1. Clone the Repository**
-
-#### **Ubuntu**
-```bash
-sudo git init
-sudo git remote add horilla https://horilla-opensource@github.com/horilla-opensource/horilla.git
-sudo git pull horilla master
-```
-
-#### **Windows**
-```powershell
-git init
-git remote add horilla https://horilla-opensource@github.com/horilla-opensource/horilla.git
-git pull horilla master
-```
-
-#### **macOS**
-```bash
-git init
-git remote add horilla https://horilla-opensource@github.com/horilla-opensource/horilla.git
-git pull horilla master
-```
-
-### **2. Set Up Python Virtual Environment**
-
-#### **Ubuntu**
-1. Install `python3-venv`:
-   ```bash
-   sudo apt-get install python3-venv
-   ```
-2. Create and activate the virtual environment:
-   ```bash
-   python3 -m venv horillavenv
-   source horillavenv/bin/activate
-   ```
-3. Install dependencies:
+3. **Install dependencies**
    ```bash
    pip install -r requirements.txt
    ```
 
-#### **Windows**
-1. Create and activate the virtual environment:
-   ```powershell
-   python -m venv horillavenv
-   .\horillavenv\Scripts\activate
-   ```
-2. Install dependencies:
-   ```powershell
-   pip install -r requirements.txt
-   ```
-
-#### **macOS**
-1. Create and activate the virtual environment:
+4. **Setup database**
    ```bash
-   python3 -m venv horillavenv
-   source horillavenv/bin/activate
-   ```
-2. Install dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-
-### **3. Configure Environment Variables**
-
-1. Rename the environment file:
-   ```bash
-   mv .env.dist .env
-   ```
-
-2. Edit the `.env` file and set the following values:
-   ```env
-   DEBUG=True
-   TIME_ZONE=Asia/Kolkata
-   SECRET_KEY=django-insecure-j8op9)1q8$1&@^s&p*_0%d#pr@w9qj@lo=3#@d=a(^@9@zd@%j
-   ALLOWED_HOSTS=www.example.com,example.com,*
-   DB_INIT_PASSWORD=d3f6a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d
-   DB_ENGINE=django.db.backends.postgresql
-   DB_NAME=horilla_main
-   DB_USER=horilla
-   DB_PASSWORD=horilla
-   DB_HOST=localhost
-   DB_PORT=5432
-   ```
-
----
-
-### **4. Run Django Migrations**
-
-Follow these steps to run migrations and set up the database.
-
-#### **Ubuntu/macOS**
-1. Apply migrations:
-   ```bash
-   python3 manage.py makemigrations
-   python3 manage.py migrate
-   ```
-
-#### **Windows**
-1. Apply migrations:
-   ```powershell
    python manage.py makemigrations
    python manage.py migrate
    ```
----
 
-### **5. Enable Translation**
+5. **Create superuser**
+   ```bash
+   python manage.py createsuperuser
+   ```
 
-To enable translations and breadcrumbs text, compile the translations using the following commands.
+6. **Load sample data (optional)**
+   ```bash
+   python manage.py loaddata load_data/*.json
+   ```
 
-#### **Ubuntu/macOS**
+7. **Run development server**
+   ```bash
+   python manage.py runserver
+   ```
+
+8. **Access the application**
+   - Open your browser and go to `http://127.0.0.1:8000`
+   - Login with your superuser credentials
+
+## 📱 Modules Overview
+
+### 👤 Employee Management
+- Employee profiles and personal information
+- Work information and organizational structure
+- Document management and file storage
+- Employee self-service portal
+- Bulk operations and data import/export
+
+### ⏰ Attendance Management
+- Multiple clock-in/out methods
+- Face recognition attendance
+- Biometric device integration
+- Shift management and scheduling
+- Overtime calculation and tracking
+- Attendance reports and analytics
+
+### 🏖️ Leave Management
+- Leave type configuration
+- Leave request and approval workflow
+- Leave balance tracking
+- Holiday calendar management
+- Leave reports and analytics
+- Integration with attendance system
+
+### 💰 Payroll System
+- Automated salary calculation
+- Multiple pay components (basic, allowances, deductions)
+- Tax calculation and compliance
+- Payslip generation and distribution
+- Payroll reports and analytics
+- Integration with attendance and leave
+
+### 🎯 Performance Management
+- OKR (Objectives and Key Results) framework
+- Performance review cycles
+- 360-degree feedback
+- Goal setting and tracking
+- Performance analytics and reporting
+
+### 🎫 Recruitment
+- Job posting and application management
+- Candidate screening and evaluation
+- Interview scheduling and feedback
+- Offer management and onboarding
+- Recruitment analytics and reporting
+
+### 📦 Asset Management
+- Asset registration and tracking
+- Asset allocation and return
+- Maintenance scheduling
+- Asset depreciation calculation
+- Asset reports and analytics
+
+### 🎫 Helpdesk
+- Ticket creation and management
+- Priority and category assignment
+- Assignment and escalation
+- Knowledge base integration
+- SLA tracking and reporting
+
+## 🤖 AI Features
+
+### Chart Bot - AI HR Assistant
+The Chart Bot is an intelligent AI assistant that helps users analyze HR data and get insights through natural language queries.
+
+**Features:**
+- Natural language query processing
+- Role-based data access
+- Real-time data analysis
+- Interactive charts and visualizations
+- Conversation history and context
+
+**Setup:**
 ```bash
-python3 manage.py compilemessages
+python manage.py setup_chart_bot --enable
 ```
 
-#### **Windows**
-```powershell
-python manage.py compilemessages
-```
+### Face Recognition System
+Advanced biometric attendance system using facial recognition technology.
 
----
+**Features:**
+- Employee face registration
+- Real-time face recognition
+- Attendance automation
+- Security and privacy protection
 
-### **6. Run the Project**
-
-To run the project locally, execute the following commands.
-
-#### **Ubuntu/macOS**
+**Setup:**
 ```bash
-python3 manage.py runserver
+# Install face recognition dependencies
+pip install face_recognition opencv-python dlib
+
+# Run migrations
+python manage.py makemigrations facedetection
+python manage.py migrate
 ```
 
-#### **Windows**
-```powershell
-python manage.py runserver
+## 🔧 Configuration
+
+### Environment Variables
+Create a `.env` file in the project root:
+
+```env
+# Database Configuration
+DATABASE_URL=postgresql://user:password@localhost:5432/horilla_db
+
+# Email Configuration
+EMAIL_HOST=smtp.gmail.com
+EMAIL_PORT=587
+EMAIL_HOST_USER=your-email@gmail.com
+EMAIL_HOST_PASSWORD=your-app-password
+
+# Face Recognition
+FACE_RECOGNITION_ENABLED=True
+FACE_RECOGNITION_TOLERANCE=0.6
+
+# Chart Bot
+CHART_BOT_ENABLED=True
+LLM_ENDPOINT=http://your-llm-endpoint:11434/api/generate
 ```
 
----
+### Database Configuration
+The system supports multiple databases:
+- **PostgreSQL** (recommended for production)
+- **MySQL**
+- **SQLite** (for development)
 
-### **Accessing Horilla**
+### Email Configuration
+Configure email settings for notifications and communications:
+- SMTP server configuration
+- Email templates
+- Notification preferences
 
-If everything is configured correctly, you should be able to access your Horilla app at **http://localhost:8000**.
-![Initialize Database in Horilla HRMS](https://www.horilla.com/wp-content/uploads/2024/12/how-to-initialize-the-database-in-horilla-hrms-step-by-step-1-1024x576.png)
+## 📊 API Documentation
 
+The system provides a comprehensive REST API for all modules:
 
-#### **Initial Setup**
-From the login page, you will have two options:
-1. **Initialize Database**: Use this option to initialize the Horilla database by creating a super admin, headquarter company, department, and job position. Authenticate using the `DB_INIT_PASSWORD` specified in the `.env` file.
-2. **Load Demo Data**: Use this option if you want to work with demo data. Authenticate using the `DB_INIT_PASSWORD` specified in the `.env` file.
+### Base URL
+```
+http://your-domain.com/api/v1/
+```
 
-#### **Running on a Custom Port**
-If you wish to run the Horilla application on a different port, specify the port number after the `runserver` command. For example:
+### Authentication
 ```bash
-python3 manage.py runserver 8080  # For Ubuntu/macOS
-python manage.py runserver 8080   # For Windows
+# Get authentication token
+curl -X POST http://your-domain.com/api/v1/auth/login/ \
+  -H "Content-Type: application/json" \
+  -d '{"username": "your-username", "password": "your-password"}'
 ```
 
+### Available Endpoints
+- **Employee API**: `/api/v1/employee/`
+- **Attendance API**: `/api/v1/attendance/`
+- **Leave API**: `/api/v1/leave/`
+- **Payroll API**: `/api/v1/payroll/`
+- **Face Detection API**: `/api/facedetection/`
+- **Chart Bot API**: `/chart-bot/api/`
 
-## **Features**
+## 🎨 Customization
 
-- **Recruitment**
-- **Onboarding**
-- **Employee Management**
-- **Attendance Tracking**
-- **Leave Management**
-- **Asset Management**
-- **Payroll**
-- **Performance Management System**
-- **Offboarding**
-- **Helpdesk**
+### Themes and Styling
+- Custom CSS and SCSS support
+- Responsive design
+- Dark mode support
+- Brand customization
+
+### Workflows
+- Custom approval workflows
+- Automated notifications
+- Business rule configuration
+- Integration with external systems
+
+### Reports
+- Custom report builder
+- Scheduled report generation
+- Export to multiple formats (PDF, Excel, CSV)
+- Dashboard customization
+
+## 🔒 Security Features
+
+- **Role-Based Access Control** - Granular permissions
+- **Data Encryption** - Sensitive data protection
+- **Audit Logging** - Complete activity tracking
+- **Session Management** - Secure user sessions
+- **CSRF Protection** - Cross-site request forgery protection
+- **SQL Injection Prevention** - Parameterized queries
+- **XSS Protection** - Cross-site scripting prevention
+
+## 📈 Performance Optimization
+
+- **Database Optimization** - Query optimization and indexing
+- **Caching** - Redis and memory caching
+- **CDN Support** - Content delivery network integration
+- **Image Optimization** - Automatic image compression
+- **Lazy Loading** - Efficient data loading
+
+## 🧪 Testing
+
+### Run Tests
+```bash
+# Run all tests
+python manage.py test
+
+# Run specific module tests
+python manage.py test employee
+python manage.py test attendance
+python manage.py test chart_bot
+```
+
+### Test Coverage
+```bash
+# Install coverage
+pip install coverage
+
+# Run tests with coverage
+coverage run --source='.' manage.py test
+coverage report
+coverage html
+```
+
+## 🚀 Deployment
+
+### Production Deployment
+1. **Configure production settings**
+2. **Setup web server (Nginx/Apache)**
+3. **Configure database**
+4. **Setup SSL certificates**
+5. **Configure email services**
+6. **Setup monitoring and logging**
+
+### Docker Deployment
+```bash
+# Build Docker image
+docker build -t horilla-hrms .
+
+# Run with Docker Compose
+docker-compose up -d
+```
+
+### Cloud Deployment
+- **AWS** - EC2, RDS, S3
+- **Google Cloud** - Compute Engine, Cloud SQL
+- **Azure** - Virtual Machines, SQL Database
+- **DigitalOcean** - Droplets, Managed Databases
+
+## 🤝 Contributing
+
+We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details.
+
+### Development Setup
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests
+5. Submit a pull request
+
+### Code Style
+- Follow PEP 8 for Python code
+- Use meaningful variable names
+- Add docstrings to functions and classes
+- Write comprehensive tests
+
+## 📚 Documentation
+
+- **User Guide**: [User Documentation](docs/user-guide.md)
+- **Developer Guide**: [Developer Documentation](docs/developer-guide.md)
+- **API Reference**: [API Documentation](docs/api-reference.md)
+- **Deployment Guide**: [Deployment Documentation](docs/deployment.md)
+
+## 🐛 Bug Reports
+
+Found a bug? Please report it on our [Issue Tracker](https://github.com/your-org/sync-hrms/issues).
+
+## 💡 Feature Requests
+
+Have an idea for a new feature? Submit it on our [Feature Request Board](https://github.com/your-org/sync-hrms/discussions).
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- Django community for the excellent framework
+- All contributors who have helped improve this project
+- Open source libraries and tools used in this project
+
+## 📞 Support
+
+- **Documentation**: [docs.sync-hrms.com](https://docs.sync-hrms.com)
+- **Community Forum**: [community.sync-hrms.com](https://community.sync-hrms.com)
+- **Email Support**: support@sync-hrms.com
+- **GitHub Issues**: [github.com/your-org/sync-hrms/issues](https://github.com/your-org/sync-hrms/issues)
+
+## 🔄 Changelog
+
+See [CHANGELOG.md](CHANGELOG.md) for a list of changes and version history.
 
 ---
 
-## **Roadmap**
+**Made with ❤️ by the Sync HRMS Team**
 
-- **Calendar App** - Development Under Process
-- **Project Management** - Development Under Process
-- **Chat App** - Development Under Process
-- **More to come...**
-
----
-
-## **Languages and Tools Used**
-
-<p align="left">
-  <a href="https://getbootstrap.com" target="_blank" rel="noreferrer">
-    <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/bootstrap/bootstrap-plain-wordmark.svg" alt="bootstrap" width="40" height="40"/>
-  </a>
-  <a href="https://www.chartjs.org" target="_blank" rel="noreferrer">
-    <img src="https://www.chartjs.org/media/logo-title.svg" alt="chartjs" width="40" height="40"/>
-  </a>
-  <a href="https://www.w3schools.com/css/" target="_blank" rel="noreferrer">
-    <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/css3/css3-original-wordmark.svg" alt="css3" width="40" height="40"/>
-  </a>
-  <a href="https://www.djangoproject.com/" target="_blank" rel="noreferrer">
-    <img src="https://cdn.worldvectorlogo.com/logos/django.svg" alt="django" width="40" height="40"/>
-  </a>
-  <a href="https://git-scm.com/" target="_blank" rel="noreferrer">
-    <img src="https://www.vectorlogo.zone/logos/git-scm/git-scm-icon.svg" alt="git" width="40" height="40"/>
-  </a>
-  <a href="https://www.w3.org/html/" target="_blank" rel="noreferrer">
-    <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/html5/html5-original-wordmark.svg" alt="html5" width="40" height="40"/>
-  </a>
-  <a href="https://www.linux.org/" target="_blank" rel="noreferrer">
-    <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/linux/linux-original.svg" alt="linux" width="40" height="40"/>
-  </a>
-  <a href="https://www.postgresql.org" target="_blank" rel="noreferrer">
-    <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/postgresql/postgresql-original-wordmark.svg" alt="postgresql" width="40" height="40"/>
-  </a>
-  <a href="https://www.python.org" target="_blank" rel="noreferrer">
-    <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/python/python-original.svg" alt="python" width="40" height="40"/>
-  </a>
-</p>
-
----
-
-## **Authors**
-
-[Cybrosys Technologies](https://www.cybrosys.com/)
-
----
-
-## **About**
-
-[Horilla](https://www.horilla.com/) is an open-source HRMS solution designed to simplify HR operations and improve organizational efficiency.
-
----
-
-This README provides a comprehensive guide to installing and setting up Horilla on various platforms. If you encounter any issues, feel free to reach out to the Horilla community for support. Happy coding! 🚀
+*Empowering organizations with intelligent HR management solutions*
