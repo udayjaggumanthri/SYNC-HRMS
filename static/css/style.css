@@ -473,11 +473,6 @@ html {
 }
 
 /* Ensure all main containers have proper layering */
-.oh-wrapper {
-    position: relative;
-    z-index: 50;
-    background-color: #ffffff !important;
-}
 
 .oh-main__titlebar {
     position: relative;
