@@ -7223,7 +7223,7 @@ body {
   padding-right: 15px;
   min-height: 250px;
   background-color: hsl(0, 0%, 100%);
-  z-index: 99;
+  z-index: 9999;
   top: 100%;
   right: 0px;
   box-shadow: rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.05) 0px 4px 6px -2px;
@@ -8666,7 +8666,7 @@ body {
   color: hsl(0, 0%, 11%);
   border: 1px solid hsl(0, 0%, 95%);
   box-shadow: rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.05) 0px 4px 6px -2px;
-  z-index: 999;
+  z-index: 9999;
 }
 
 .oh-dropdown__menu--hidden {
@@ -13698,7 +13698,7 @@ div.ui-tooltip {
   border: 1px solid hsl(213, 22%, 93%);
   padding: 0.5rem;
   min-width: 300px;
-  z-index: 99;
+  z-index: 9999;
   top: -80px;
   left: 25px;
   transform: translateY(-25%);

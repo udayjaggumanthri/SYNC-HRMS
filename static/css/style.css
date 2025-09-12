@@ -539,7 +539,7 @@ html {
 
 
 .oh-navbar {
-    z-index: 15 !important;
+    z-index: 1000 !important;
 }
 
 .swal2-actions {
@@ -547,7 +547,27 @@ html {
 }
 
 .oh-dropdown__menu {
-    z-index: 15
+    z-index: 9999 !important;
+}
+
+/* Ensure navbar dropdowns appear above all content */
+.oh-navbar .oh-dropdown__menu {
+    z-index: 9999 !important;
+    position: absolute !important;
+}
+
+/* Specific fixes for profile and language dropdowns */
+#mainNavProfile .oh-dropdown__menu,
+#multiLanguage .oh-dropdown__menu,
+#multCompany .oh-dropdown__menu {
+    z-index: 9999 !important;
+    position: absolute !important;
+}
+
+/* Ensure dropdown containers have proper positioning */
+.oh-dropdown {
+    position: relative !important;
+    z-index: 1000 !important;
 }
 
 .chart_close_button {
