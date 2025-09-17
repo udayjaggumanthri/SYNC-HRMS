@@ -123,6 +123,49 @@
                         {{form.children}} {{form.children.errors}}
                     </div>
                 </div>
+                
+                <!-- Additional Personal Information Fields -->
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <h6 class="oh-label mb-3">{% trans "Additional Personal Information" %}</h6>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12 col-sm-12 col-md-12 col-lg-6">
+                        <label class="oh-label d-block" for="aadhaar_number">{% trans "Aadhaar Number" %}</label>
+                        {{form.aadhaar_number}} {{form.aadhaar_number.errors}}
+                    </div>
+                    <div class="col-12 col-sm-12 col-md-12 col-lg-6">
+                        <label class="oh-label d-block" for="aadhaar_document">{% trans "Aadhaar Document" %}</label>
+                        {{form.aadhaar_document}} {{form.aadhaar_document.errors}}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12 col-sm-12 col-md-12 col-lg-6">
+                        <label class="oh-label d-block" for="pan_number">{% trans "PAN Number" %}</label>
+                        {{form.pan_number}} {{form.pan_number.errors}}
+                    </div>
+                    <div class="col-12 col-sm-12 col-md-12 col-lg-6">
+                        <label class="oh-label d-block" for="pan_document">{% trans "PAN Document" %}</label>
+                        {{form.pan_document}} {{form.pan_document.errors}}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12 col-sm-12 col-md-12 col-lg-6">
+                        <label class="oh-label d-block" for="driving_license">{% trans "Driving License" %}</label>
+                        {{form.driving_license}} {{form.driving_license.errors}}
+                    </div>
+                    <div class="col-12 col-sm-12 col-md-12 col-lg-6">
+                        <label class="oh-label d-block" for="passport_number">{% trans "Passport Number" %}</label>
+                        {{form.passport_number}} {{form.passport_number.errors}}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12 col-sm-12 col-md-12 col-lg-6">
+                        <label class="oh-label d-block" for="passport_expiry">{% trans "Passport Expiry" %}</label>
+                        {{form.passport_expiry}} {{form.passport_expiry.errors}}
+                    </div>
+                </div>
                 <hr class="mt-5 mb-3" />
                 <div class="w-100 d-flex align-items-center justify-content-end">
                     <button type="submit" class="oh-btn oh-btn--secondary oh-btn--w-100-resp">

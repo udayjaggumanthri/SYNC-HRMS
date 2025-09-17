@@ -19,6 +19,7 @@ from payroll.models.models import (
     PayrollGeneralSetting,
     ReimbursementFile,
     ReimbursementrequestComment,
+    StatutoryCompliance,
 )
 
 
@@ -194,3 +195,55 @@ class DashboardExport(Form):
         ],
         widget=forms.SelectMultiple,
     )
+
+
+class StatutoryComplianceForm(ModelForm):
+    """
+    Form for StatutoryCompliance model
+    """
+
+    class Meta:
+        """
+        Meta class for additional options
+        """
+
+        model = StatutoryCompliance
+        fields = "__all__"
+        exclude = ["is_active", "additional_info"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for visible in self.visible_fields():
+            visible.field.widget.attrs["class"] = "oh-input w-100"
+        for field in self.fields:
+            self.fields[field].widget.attrs["placeholder"] = self.fields[field].label
+
+    def as_p(self, *args, **kwargs):
+        context = {"form": self}
+        return render_to_string("payroll/statutory_compliance/form.html", context)
+
+
+class StatutoryComplianceUpdateForm(ModelForm):
+    """
+    Form for updating StatutoryCompliance model
+    """
+
+    class Meta:
+        """
+        Meta class for additional options
+        """
+
+        model = StatutoryCompliance
+        fields = "__all__"
+        exclude = ["is_active", "additional_info"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for visible in self.visible_fields():
+            visible.field.widget.attrs["class"] = "oh-input w-100"
+        for field in self.fields:
+            self.fields[field].widget.attrs["placeholder"] = self.fields[field].label
+
+    def as_p(self, *args, **kwargs):
+        context = {"form": self}
+        return render_to_string("payroll/statutory_compliance/update_form.html", context)

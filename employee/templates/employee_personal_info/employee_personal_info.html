@@ -55,6 +55,24 @@
                     <div class="form-outline mb-4">{{form.martial_status}}</div>
                     {{form.children.errors}}
                     <div class="form-outline mb-4">{{form.children}}</div>
+                    
+                    <!-- Additional Personal Information Fields -->
+                    <h6 class="text-secondary mb-3 mt-4">{% trans "Additional Personal Information" %}</h6>
+                    {{form.aadhaar_number.errors}}
+                    <div class="form-outline mb-4">{{form.aadhaar_number}}</div>
+                    {{form.aadhaar_document.errors}}
+                    <div class="form-outline mb-4">{{form.aadhaar_document}}</div>
+                    {{form.pan_number.errors}}
+                    <div class="form-outline mb-4">{{form.pan_number}}</div>
+                    {{form.pan_document.errors}}
+                    <div class="form-outline mb-4">{{form.pan_document}}</div>
+                    {{form.driving_license.errors}}
+                    <div class="form-outline mb-4">{{form.driving_license}}</div>
+                    {{form.passport_number.errors}}
+                    <div class="form-outline mb-4">{{form.passport_number}}</div>
+                    {{form.passport_expiry.errors}}
+                    <div class="form-outline mb-4">{{form.passport_expiry}}</div>
+                    
                     {{form.employee_profile.errors}}
                     <label class="text-secondary"
                         for="id_{{form.employee_profile.name}}">{{form.employee_profile.label}}</label>

@@ -30,7 +30,7 @@ env = environ.Env(
         "django-insecure-j8op9)1q8$1&0^s&p*_0%d#pr@w9qj@1o=3#@d=a(^@9@zd@%j",
     ),
     ALLOWED_HOSTS=(list, ["*"]),
-    CSRF_TRUSTED_ORIGINS=(list, ["http://localhost:8000"]),
+    CSRF_TRUSTED_ORIGINS=(list, ["http://localhost:8000", "http://192.168.3.186:8000"]),
 )
 
 env.read_env(os.path.join(BASE_DIR, ".env"), overwrite=True)
@@ -188,6 +188,58 @@ MESSAGE_TAGS = {
 
 CSRF_TRUSTED_ORIGINS = env("CSRF_TRUSTED_ORIGINS")
 
+# Additional CSRF settings for development
+CSRF_COOKIE_HTTPONLY = False  # Allow JavaScript access for development
+CSRF_USE_SESSIONS = False  # Use cookies instead of sessions for CSRF
+
+# CORS settings for mobile app
+CORS_ALLOWED_ORIGINS = [
+    "http://192.168.3.186:8000",
+    "http://localhost:8000",
+    "http://127.0.0.1:8000",
+]
+
+CORS_ALLOW_ALL_ORIGINS = True  # Allow all origins for development
+CORS_ALLOW_CREDENTIALS = True
+
+# Additional CORS headers for mobile app
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+]
+
+# Session settings for mobile app
+SESSION_COOKIE_SAMESITE = 'Lax'  # Changed from 'None' to 'Lax' for local development
+SESSION_COOKIE_SECURE = False  # Set to True in production with HTTPS
+CSRF_COOKIE_SAMESITE = 'Lax'  # Changed from 'None' to 'Lax' for local development
+CSRF_COOKIE_SECURE = False  # Set to True in production with HTTPS
+
+# API settings for mobile app
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer',
+    ],
+    'DEFAULT_PARSER_CLASSES': [
+        'rest_framework.parsers.JSONParser',
+        'rest_framework.parsers.MultiPartParser',
+        'rest_framework.parsers.FormParser',
+    ],
+}
+
 LOGIN_URL = "/login"
 
 
@@ -246,9 +298,10 @@ if not DEBUG:
 
 #Email settings
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'         # e.g., 'smtp.gmail.com'
-EMAIL_PORT = 587                             # or 465 for SSL
-EMAIL_HOST_USER = 'rajinin7805@gmail.com'
-EMAIL_HOST_PASSWORD = 'vbzt kcrm tknd vivz'
-EMAIL_USE_TLS = True                         # True for TLS, False for SSL
-DEFAULT_FROM_EMAIL = 'rajinin7805@gmail.com'
+EMAIL_HOST = 'mail.mcb5.in'
+EMAIL_PORT = 25
+EMAIL_HOST_USER = 'udayj'
+EMAIL_HOST_PASSWORD = 'tx0kIA6AsPlOHykiHSjFnbcf'
+EMAIL_USE_TLS = False
+EMAIL_USE_SSL = False
+DEFAULT_FROM_EMAIL = 'synchrm@synchrm.com'

@@ -79,18 +79,18 @@ class ClockInAPIView(APIView):
                 pass
             employee, work_info = employee_exists(request)
             datetime_now = datetime.now()
-            if request.__dict__.get("datetime"):
+            if request._dict_.get("datetime"):
                 datetime_now = request.datetime
             if employee and work_info is not None:
                 shift = work_info.shift_id
                 date_today = date.today()
-                if request.__dict__.get("date"):
+                if request._dict_.get("date"):
                     date_today = request.date
                 attendance_date = date_today
                 day = date_today.strftime("%A").lower()
                 day = EmployeeShiftDay.objects.get(day=day)
                 now = datetime.now().strftime("%H:%M")
-                if request.__dict__.get("time"):
+                if request._dict_.get("time"):
                     now = request.time.strftime("%H:%M")
                 now_sec = strtime_seconds(now)
                 mid_day_sec = strtime_seconds("12:00")
@@ -396,7 +396,7 @@ class AttendanceRequestView(APIView):
     Handles requests for creating, updating, and viewing attendance records.
 
     Methods:
-        get(request, pk=None): Retrieves a specific attendance request by `pk` or a filtered list of requests.
+        get(request, pk=None): Retrieves a specific attendance request by pk or a filtered list of requests.
         post(request): Creates a new attendance request.
         put(request, pk): Updates an existing attendance request.
     """
@@ -582,7 +582,7 @@ class AttendanceOverTimeView(APIView):
     Manages CRUD operations for attendance overtime records.
 
     Methods:
-        get(request, pk=None): Retrieves a specific overtime record by `pk` or a list of records with filtering and pagination.
+        get(request, pk=None): Retrieves a specific overtime record by pk or a list of records with filtering and pagination.
         post(request): Creates a new overtime record.
         put(request, pk): Updates an existing overtime record.
         delete(request, pk): Deletes an overtime record.
@@ -647,7 +647,7 @@ class LateComeEarlyOutView(APIView):
 
     Methods:
         get(request, pk=None): Retrieves a list of late come and early out records with filtering.
-        delete(request, pk=None): Deletes a specific late come or early out record by `pk`.
+        delete(request, pk=None): Deletes a specific late come or early out record by pk.
     """
 
     permission_classes = [IsAuthenticated]
@@ -762,20 +762,20 @@ class OfflineEmployeesListView(APIView):
             leave_status=Case(
                 # Define different cases based on leave requests and attendance
                 When(
-                    leaverequest__start_date__lte=today,
-                    leaverequest__end_date__gte=today,
+                    leaverequest_start_date_lte=today,
+                    leaverequest_end_date_gte=today,
                     leaverequest__status="approved",
                     then=Value("On Leave"),
                 ),
                 When(
-                    leaverequest__start_date__lte=today,
-                    leaverequest__end_date__gte=today,
+                    leaverequest_start_date_lte=today,
+                    leaverequest_end_date_gte=today,
                     leaverequest__status="requested",
                     then=Value("Waiting Approval"),
                 ),
                 When(
-                    leaverequest__start_date__lte=today,
-                    leaverequest__end_date__gte=today,
+                    leaverequest_start_date_lte=today,
+                    leaverequest_end_date_gte=today,
                     then=Value("Canceled / Rejected"),
                 ),
                 When(
@@ -821,11 +821,6 @@ class CheckingStatus(APIView):
         return f"{hours:02}:{minutes:02}:{seconds:02}"
 
     def get(self, request):
-        attendance_activity = (
-            AttendanceActivity.objects.filter(employee_id=request.user.employee_get)
-            .order_by("-id")
-            .first()
-        )
         duration = None
         work_seconds = request.user.employee_get.get_forecasted_at_work()[
             "forecasted_at_work_seconds"
@@ -834,34 +829,48 @@ class CheckingStatus(APIView):
         status = False
         clock_in_time = None
 
-        today = datetime.now()
-        attendance_activity_first = (
-            AttendanceActivity.objects.filter(
-                employee_id=request.user.employee_get, clock_in_date=today
-            )
-            .order_by("in_datetime")
-            .first()
-        )
-        if attendance_activity:
-            try:
-                clock_in_time = attendance_activity_first.clock_in.strftime("%I:%M %p")
-                if attendance_activity.clock_out_date:
-                    status = False
-                else:
-                    status = True
-                    return Response(
-                        {
-                            "status": status,
-                            "duration": duration,
-                            "clock_in": clock_in_time,
-                        },
-                        status=200,
-                    )
-            except:
+        today = datetime.now().date()
+        
+        # Get all attendance activities for today
+        today_activities = AttendanceActivity.objects.filter(
+            employee_id=request.user.employee_get, 
+            attendance_date=today
+        ).order_by("in_datetime")
+        
+        if today_activities.exists():
+            # Get the first check-in time for today
+            first_activity = today_activities.first()
+            clock_in_time = first_activity.clock_in.strftime("%I:%M %p")
+            
+            # Check if user is currently checked in by looking at the latest activity
+            latest_activity = today_activities.order_by("-id").first()
+            
+            # User is checked in if the latest activity doesn't have a clock_out_date
+            if latest_activity and not latest_activity.clock_out_date:
+                status = True
                 return Response(
-                    {"status": status, "duration": duration, "clock_in": clock_in_time},
+                    {
+                        "status": status,
+                        "duration": duration,
+                        "clock_in": clock_in_time,
+                        "clock_in_time": clock_in_time,  # Add this for mobile app compatibility
+                    },
                     status=200,
                 )
+            else:
+                # User is checked out
+                status = False
+                return Response(
+                    {
+                        "status": status,
+                        "duration": duration,
+                        "clock_in": clock_in_time,
+                        "clock_in_time": clock_in_time,  # Add this for mobile app compatibility
+                    },
+                    status=200,
+                )
+        
+        # No activities for today
         return Response(
             {"status": status, "duration": duration, "clock_in_time": clock_in_time},
             status=200,

@@ -21,33 +21,67 @@ from .serializers import *
 class GeoFencingSetupGetPostAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
-    @method_decorator(
-        permission_required("geofencing.view_geofencing", raise_exception=True),
-        name="dispatch",
-    )
     def get(self, request):
-        company = request.user.employee_get.get_company()
-        location = get_object_or_404(GeoFencing, pk=company.id)
-        serializer = GeoFencingSetupSerializer(location)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-    @method_decorator(
-        permission_required("geofencing.add_geofencing", raise_exception=True),
-        name="dispatch",
-    )
-    def post(self, request):
-        data = request.data
-        if not request.user.is_superuser:
-            if isinstance(data, QueryDict):
-                data = data.dict()
+        try:
+            # Check if user has the specific permission, if not, allow if they're an employee
+            if not request.user.has_perm("geofencing.view_geofencing"):
+                # For mobile app users, allow access if they have an employee profile
+                if not hasattr(request.user, 'employee_get') or not request.user.employee_get:
+                    return Response(
+                        {"error": "No employee profile found for this user"}, 
+                        status=status.HTTP_403_FORBIDDEN
+                    )
+            
             company = request.user.employee_get.get_company()
-            if company:
-                data["company_id"] = company.id
-        serializer = GeoFencingSetupSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            if not company:
+                return Response(
+                    {"error": "No company found for this employee"}, 
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            
+            try:
+                location = GeoFencing.objects.get(company_id=company)
+                serializer = GeoFencingSetupSerializer(location)
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            except GeoFencing.DoesNotExist:
+                return Response(
+                    {"error": "Geofencing not configured for this company"}, 
+                    status=status.HTTP_404_NOT_FOUND
+                )
+        except Exception as e:
+            return Response(
+                {"error": f"Error retrieving geofencing setup: {str(e)}"}, 
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+    def post(self, request):
+        try:
+            # Check if user has the specific permission, if not, allow if they're an employee
+            if not request.user.has_perm("geofencing.add_geofencing"):
+                # For mobile app users, allow access if they have an employee profile
+                if not hasattr(request.user, 'employee_get') or not request.user.employee_get:
+                    return Response(
+                        {"error": "No employee profile found for this user"}, 
+                        status=status.HTTP_403_FORBIDDEN
+                    )
+            
+            data = request.data
+            if not request.user.is_superuser:
+                if isinstance(data, QueryDict):
+                    data = data.dict()
+                company = request.user.employee_get.get_company()
+                if company:
+                    data["company_id"] = company.id
+            serializer = GeoFencingSetupSerializer(data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response(
+                {"error": f"Error creating geofencing setup: {str(e)}"}, 
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
 
 class GeoFencingSetupPutDeleteAPIView(APIView):
