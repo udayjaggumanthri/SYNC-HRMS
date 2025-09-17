@@ -1919,3 +1919,105 @@ class PayslipAutoGenerate(models.Model):
 
     def __str__(self) -> str:
         return f"{self.generate_day} | {self.company_id} "
+
+
+class StatutoryCompliance(HorillaModel):
+    """
+    Statutory Compliance model for employee statutory deductions and contributions
+    """
+
+    employee_id = models.OneToOneField(
+        Employee,
+        on_delete=models.CASCADE,
+        null=True,
+        related_name="statutory_compliance",
+        verbose_name=_("Employee"),
+    )
+    
+    # PF (Provident Fund) Fields
+    pf_number = models.CharField(
+        max_length=50, null=True, blank=True, verbose_name=_("PF Number")
+    )
+    pf_uan = models.CharField(
+        max_length=12, null=True, blank=True, verbose_name=_("PF UAN")
+    )
+    pf_contribution_percentage = models.DecimalField(
+        max_digits=5, decimal_places=2, null=True, blank=True, 
+        verbose_name=_("PF Contribution Percentage")
+    )
+    pf_voluntary_contribution = models.DecimalField(
+        max_digits=10, decimal_places=2, null=True, blank=True, 
+        verbose_name=_("PF Voluntary Contribution")
+    )
+    pf_nominee_name = models.CharField(
+        max_length=100, null=True, blank=True, verbose_name=_("PF Nominee Name")
+    )
+    pf_nominee_relation = models.CharField(
+        max_length=50, null=True, blank=True, verbose_name=_("PF Nominee Relation")
+    )
+    
+    # ESI (Employee State Insurance) Fields
+    esi_number = models.CharField(
+        max_length=20, null=True, blank=True, verbose_name=_("ESI Number")
+    )
+    esi_contribution_percentage = models.DecimalField(
+        max_digits=5, decimal_places=2, null=True, blank=True, 
+        verbose_name=_("ESI Contribution Percentage")
+    )
+    esi_family_members = models.IntegerField(
+        null=True, blank=True, verbose_name=_("ESI Family Members")
+    )
+    esi_dispensary_code = models.CharField(
+        max_length=20, null=True, blank=True, verbose_name=_("ESI Dispensary Code")
+    )
+    
+    # Professional Tax Fields
+    pt_number = models.CharField(
+        max_length=20, null=True, blank=True, verbose_name=_("Professional Tax Number")
+    )
+    pt_state = models.CharField(
+        max_length=50, null=True, blank=True, verbose_name=_("Professional Tax State")
+    )
+    pt_deduction_amount = models.DecimalField(
+        max_digits=10, decimal_places=2, null=True, blank=True, 
+        verbose_name=_("Professional Tax Deduction Amount")
+    )
+    
+    # Labour Welfare Fund Fields
+    lwf_number = models.CharField(
+        max_length=20, null=True, blank=True, verbose_name=_("Labour Welfare Fund Number")
+    )
+    lwf_state = models.CharField(
+        max_length=50, null=True, blank=True, verbose_name=_("Labour Welfare Fund State")
+    )
+    lwf_deduction_amount = models.DecimalField(
+        max_digits=10, decimal_places=2, null=True, blank=True, 
+        verbose_name=_("Labour Welfare Fund Deduction Amount")
+    )
+    
+    additional_info = models.JSONField(null=True, blank=True)
+    objects = HorillaCompanyManager(
+        related_company_field="employee_id__employee_work_info__company_id"
+    )
+    history = HorillaAuditLog(
+        related_name="history_set",
+        bases=[
+            HorillaAuditInfo,
+        ],
+    )
+
+    class Meta:
+        verbose_name = _("Statutory Compliance")
+        verbose_name_plural = _("Statutory Compliance")
+
+    def __str__(self) -> str:
+        return f"Statutory Compliance - {self.employee_id}"
+
+    def clean(self):
+        super().clean()
+        # Add any validation logic here if needed
+        if self.pf_contribution_percentage and (self.pf_contribution_percentage < 0 or self.pf_contribution_percentage > 100):
+            raise ValidationError(_("PF Contribution Percentage must be between 0 and 100"))
+        
+        if self.esi_contribution_percentage and (self.esi_contribution_percentage < 0 or self.esi_contribution_percentage > 100):
+            raise ValidationError(_("ESI Contribution Percentage must be between 0 and 100"))

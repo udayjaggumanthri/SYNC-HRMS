@@ -101,6 +101,14 @@ class Employee(models.Model):
     emergency_contact = models.CharField(max_length=15, null=True, blank=True)
     emergency_contact_name = models.CharField(max_length=20, null=True, blank=True)
     emergency_contact_relation = models.CharField(max_length=20, null=True, blank=True)
+    # Additional personal information fields
+    aadhaar_number = models.CharField(max_length=12, null=True, blank=True, verbose_name=_("Aadhaar Number"))
+    aadhaar_document = models.FileField(upload_to=upload_path, null=True, blank=True, verbose_name=_("Aadhaar Document"))
+    pan_number = models.CharField(max_length=10, null=True, blank=True, verbose_name=_("PAN Number"))
+    pan_document = models.FileField(upload_to=upload_path, null=True, blank=True, verbose_name=_("PAN Document"))
+    driving_license = models.CharField(max_length=20, null=True, blank=True, verbose_name=_("Driving License"))
+    passport_number = models.CharField(max_length=20, null=True, blank=True, verbose_name=_("Passport Number"))
+    passport_expiry = models.DateField(null=True, blank=True, verbose_name=_("Passport Expiry"))
     is_active = models.BooleanField(default=True)
     additional_info = models.JSONField(null=True, blank=True)
     is_from_onboarding = models.BooleanField(
@@ -748,6 +756,9 @@ class EmployeeBankDetails(HorillaModel):
     any_other_code2 = models.CharField(
         max_length=50, null=True, blank=True, verbose_name="Bank Code #2"
     )
+    # Additional bank details fields
+    ifsc_code = models.CharField(max_length=11, null=True, blank=True, verbose_name=_("IFSC Code"))
+    bank_account_type = models.CharField(max_length=20, null=True, blank=True, verbose_name=_("Bank Account Type"))
     additional_info = models.JSONField(null=True, blank=True)
     objects = HorillaCompanyManager(
         related_company_field="employee_id__employee_work_info__company_id"

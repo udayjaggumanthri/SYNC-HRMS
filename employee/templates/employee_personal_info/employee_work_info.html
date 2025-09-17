@@ -150,6 +150,14 @@
                     {{bank_form.any_other_code2.errors}}
                     {{bank_form.any_other_code2}}
                 </div>
+                <div class="mb-4">
+                    {{bank_form.ifsc_code.errors}}
+                    {{bank_form.ifsc_code}}
+                </div>
+                <div class="mb-4">
+                    {{bank_form.bank_account_type.errors}}
+                    {{bank_form.bank_account_type}}
+                </div>
                 {% if perms.employee.change_employeebankdetails %}
                 {% if form.instance.employee_bank_details %}
                     <button

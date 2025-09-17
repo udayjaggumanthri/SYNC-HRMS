@@ -168,6 +168,7 @@ class EmployeeForm(ModelForm):
         )
         widgets = {
             "dob": TextInput(attrs={"type": "date", "id": "dob"}),
+            "passport_expiry": TextInput(attrs={"type": "date", "id": "passport_expiry"}),
         }
 
     def __init__(self, *args, **kwargs):
@@ -183,6 +184,8 @@ class EmployeeForm(ModelForm):
             initial = {}
             if instance.dob is not None:
                 initial["dob"] = instance.dob.strftime("%H:%M")
+            if instance.passport_expiry is not None:
+                initial["passport_expiry"] = instance.passport_expiry.strftime("%Y-%m-%d")
             kwargs["initial"] = initial
         else:
             self.initial = {"badge_id": self.get_next_badge_id()}
@@ -423,6 +426,8 @@ class EmployeeBankDetailsForm(ModelForm):
             "state",
             "city",
             "any_other_code2",
+            "ifsc_code",
+            "bank_account_type",
         )
         exclude = ["employee_id", "is_active", "additional_info"]
 

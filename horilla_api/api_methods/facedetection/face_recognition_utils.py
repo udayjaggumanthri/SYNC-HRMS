@@ -33,11 +33,15 @@ def encode_face_from_image(image_path):
         tuple: (success, encoding, message)
     """
     try:
+        print(f"🔍 encode_face_from_image: Processing image at {image_path}")
+        
         # Load the image
         image = face_recognition.load_image_file(image_path)
+        print(f"🔍 Image loaded successfully, shape: {image.shape}")
         
         # Find face locations
         face_locations = face_recognition.face_locations(image)
+        print(f"🔍 Found {len(face_locations)} face(s) in image")
         
         if not face_locations:
             return False, None, "No face detected in the image"
@@ -47,6 +51,7 @@ def encode_face_from_image(image_path):
         
         # Get face encodings
         face_encodings = face_recognition.face_encodings(image, face_locations)
+        print(f"🔍 Generated {len(face_encodings)} face encoding(s)")
         
         if not face_encodings:
             return False, None, "Could not extract face encoding"
@@ -106,6 +111,8 @@ def process_uploaded_face_image(image_file):
     """
     temp_file_path = None
     try:
+        print(f"🔍 process_uploaded_face_image: Processing image file {image_file.name}, size: {image_file.size}")
+        
         # Create temporary file
         with tempfile.NamedTemporaryFile(delete=False, suffix='.jpg') as temp_file:
             temp_file_path = temp_file.name
@@ -114,8 +121,12 @@ def process_uploaded_face_image(image_file):
                 temp_file.write(chunk)
             temp_file.flush()
         
+        print(f"🔍 Saved image to temporary file: {temp_file_path}")
+        
         # Process the image (outside the with block to ensure file is closed)
         success, encoding, message = encode_face_from_image(temp_file_path)
+        
+        print(f"🔍 Image encoding result: success={success}, message={message}")
         
         return success, encoding, message
             
@@ -197,14 +208,19 @@ def find_employee_by_face(image_file, tolerance=0.6):
         tuple: (employee, confidence, message)
     """
     try:
+        print(f"🔍 find_employee_by_face: Processing image with tolerance {tolerance}")
+        
         # Process uploaded image
         success, uploaded_encoding, message = process_uploaded_face_image(image_file)
+        
+        print(f"🔍 Image processing result: success={success}, message={message}")
         
         if not success:
             return None, 0.0, message
         
         # Get all face detection records
         all_faces = EmployeeFaceDetection.objects.all()
+        print(f"🔍 Found {all_faces.count()} face detection records")
         
         best_match = None
         best_confidence = 0.0
@@ -221,12 +237,17 @@ def find_employee_by_face(image_file, tolerance=0.6):
                         tolerance
                     )
                     
+                    print(f"🔍 Comparing with employee {face_data.employee_id}: match={match}, confidence={confidence}")
+                    
                     if match and confidence > best_confidence:
                         best_match = face_data.employee_id
                         best_confidence = confidence
+                        print(f"🔍 New best match: employee {best_match} with confidence {best_confidence}")
             except Exception as e:
                 logger.warning(f"Error processing face for employee {face_data.employee_id}: {e}")
                 continue
+        
+        print(f"🔍 Final result: best_match={best_match}, best_confidence={best_confidence}")
         
         if best_match:
             return best_match, best_confidence, "Employee found"
@@ -358,40 +379,86 @@ def perform_clock_in(employee):
         tuple: (success, attendance_data, message)
     """
     try:
-        # Check if already clocked in
-        if employee.check_online():
-            return False, None, "Already clocked in"
-        
         # Get current time
         now = datetime.now()
         today = now.date()
         
-        # Create attendance record
-        attendance = Attendance.objects.create(
-            employee_id=employee,
-            attendance_date=today,
-            attendance_clock_in_date=today,
-            attendance_clock_in=now.time(),
-            attendance_validated=True
-        )
+        # Check if already clocked in today using consistent logic
+        today_activities = AttendanceActivity.objects.filter(
+            employee_id=employee, 
+            attendance_date=today
+        ).order_by("-id")
         
-        # Create attendance activity
-        AttendanceActivity.objects.create(
-            employee_id=employee,
-            attendance_date=today,
-            clock_in_date=today,
-            clock_in=now.time(),
-            in_datetime=now
-        )
+        is_already_checked_in = False
+        if today_activities.exists():
+            latest_activity = today_activities.first()
+            # User is checked in if the latest activity doesn't have a clock_out_date
+            is_already_checked_in = latest_activity and not latest_activity.clock_out_date
         
-        attendance_data = {
-            'attendance_id': attendance.id,
-            'clock_in_time': now,
-            'employee_name': employee.get_full_name(),
-            'employee_id': employee.id
-        }
-        
-        return True, attendance_data, "Clock in successful"
+        if is_already_checked_in:
+            # If already checked in, create a new attendance activity for additional check-in
+            # This allows multiple check-ins per day while maintaining the main attendance record
+            
+            # Get or create the attendance record for today (handles unique constraint gracefully)
+            attendance, created = Attendance.objects.get_or_create(
+                employee_id=employee,
+                attendance_date=today,
+                defaults={
+                    'attendance_clock_in_date': today,
+                    'attendance_clock_in': now.time(),
+                    'attendance_validated': True
+                }
+            )
+            
+            # Create additional attendance activity for this check-in
+            AttendanceActivity.objects.create(
+                employee_id=employee,
+                attendance_date=today,
+                clock_in_date=today,
+                clock_in=now.time(),
+                in_datetime=now,
+                verification_method='face_recognition'
+            )
+            
+            attendance_data = {
+                'attendance_id': attendance.id,
+                'clock_in_time': now,
+                'employee_name': employee.get_full_name(),
+                'employee_id': employee.id,
+                'additional_checkin': not created  # True if this is an additional check-in
+            }
+            
+            message = "Additional check-in recorded successfully" if not created else "Clock in successful"
+            return True, attendance_data, message
+        else:
+            # Normal check-in for first time today
+            attendance, created = Attendance.objects.get_or_create(
+                employee_id=employee,
+                attendance_date=today,
+                defaults={
+                    'attendance_clock_in_date': today,
+                    'attendance_clock_in': now.time(),
+                    'attendance_validated': True
+                }
+            )
+            
+            AttendanceActivity.objects.create(
+                employee_id=employee,
+                attendance_date=today,
+                clock_in_date=today,
+                clock_in=now.time(),
+                in_datetime=now,
+                verification_method='face_recognition'
+            )
+            
+            attendance_data = {
+                'attendance_id': attendance.id,
+                'clock_in_time': now,
+                'employee_name': employee.get_full_name(),
+                'employee_id': employee.id
+            }
+            
+            return True, attendance_data, "Clock in successful"
         
     except Exception as e:
         logger.error(f"Error performing clock in: {str(e)}")
@@ -409,8 +476,24 @@ def perform_clock_out(employee):
         tuple: (success, attendance_data, message)
     """
     try:
-        # Check if clocked in
-        if not employee.check_online():
+        print(f"🔍 perform_clock_out: Checking if employee {employee.id} is online")
+        
+        # Check if clocked in using the same logic as CheckingStatus API
+        today = datetime.now().date()
+        today_activities = AttendanceActivity.objects.filter(
+            employee_id=employee, 
+            attendance_date=today
+        ).order_by("-id")
+        
+        is_online = False
+        if today_activities.exists():
+            latest_activity = today_activities.first()
+            # User is checked in if the latest activity doesn't have a clock_out_date
+            is_online = latest_activity and not latest_activity.clock_out_date
+        
+        print(f"🔍 Employee {employee.id} online status: {is_online}")
+        
+        if not is_online:
             return False, None, "Not clocked in"
         
         # Get current time
@@ -442,6 +525,7 @@ def perform_clock_out(employee):
             activity.clock_out_date = today
             activity.clock_out = now.time()
             activity.out_datetime = now
+            activity.verification_method = 'face_recognition'
             activity.save()
         
         attendance_data = {
@@ -473,7 +557,7 @@ def get_face_recognition_stats(company_id=None):
         queryset = EmployeeFaceDetection.objects.all()
         
         if company_id:
-            queryset = queryset.filter(employee_id__employee_work_info__company_id=company_id)
+            queryset = queryset.filter(employee_id_employee_work_info_company_id=company_id)
         
         total_registrations = queryset.count()
         active_registrations = total_registrations  # All registered faces are considered active

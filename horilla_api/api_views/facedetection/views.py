@@ -167,7 +167,7 @@ class EmployeeFaceDetectionGetPostAPIView(APIView):
             
             # Get face detection records for the company
             face_records = EmployeeFaceDetection.objects.filter(
-                employee_id__employee_work_info__company_id=company
+                employee_id_employee_work_info_company_id=company
             ).select_related('employee_id')
             
             # Apply pagination
@@ -446,13 +446,13 @@ class FaceDetectionStatusAPIView(APIView):
             
             # Get face registration counts
             total_registered = EmployeeFaceDetection.objects.filter(
-                employee_id__employee_work_info__company_id=company
+                employee_id_employee_work_info_company_id=company
             ).count()
             
             # Since EmployeeFaceDetection model doesn't have is_active field, 
             # we'll count all face records as active
             active_faces = EmployeeFaceDetection.objects.filter(
-                employee_id__employee_work_info__company_id=company
+                employee_id_employee_work_info_company_id=company
             ).count()
             
             status_data = {
@@ -763,16 +763,23 @@ def quick_face_checkout(request):
     Quick face check-out endpoint for mobile apps
     """
     try:
+        print(f"🔍 Face checkout request received from user: {request.user.username}")
+        print(f"🔍 Request files: {list(request.FILES.keys())}")
+        print(f"🔍 Request data: {request.data}")
+        
         if 'face_image' not in request.FILES:
+            print("❌ No face_image in request.FILES")
             return Response(
                 {"error": "Face image is required"}, 
                 status=status.HTTP_400_BAD_REQUEST
             )
         
         face_image = request.FILES['face_image']
+        print(f"🔍 Face image received: {face_image.name}, size: {face_image.size}")
         
         # Get face detection configuration
         if not hasattr(request.user, 'employee_get') or not request.user.employee_get:
+            print("❌ No employee profile found for user")
             return Response(
                 {"error": "No employee profile found for this user"}, 
                 status=status.HTTP_400_BAD_REQUEST
@@ -782,30 +789,39 @@ def quick_face_checkout(request):
         company = employee.get_company()
         
         if not company:
+            print("❌ No company found for employee")
             return Response(
                 {"error": "No company found for this employee"}, 
                 status=status.HTTP_400_BAD_REQUEST
             )
         
+        print(f"🔍 Employee: {employee.get_full_name()}, Company: {company}")
+        
         try:
             face_detection = FaceDetection.objects.get(company_id=company)
             if not face_detection.start:
+                print("❌ Face detection not enabled for company")
                 return Response({
                     "success": False,
                     "message": "Face detection is not enabled for your company"
                 }, status=status.HTTP_400_BAD_REQUEST)
             
             tolerance = 0.6  # Default threshold value
+            print(f"🔍 Face detection enabled, tolerance: {tolerance}")
         except FaceDetection.DoesNotExist:
+            print("❌ Face detection not configured for company")
             return Response({
                 "success": False,
                 "message": "Face detection is not configured for your company"
             }, status=status.HTTP_400_BAD_REQUEST)
         
         # Find employee by face
+        print("🔍 Starting face recognition...")
         found_employee, confidence, message = find_employee_by_face(
             face_image, tolerance
         )
+        
+        print(f"🔍 Face recognition result: found_employee={found_employee}, confidence={confidence}, message={message}")
         
         if found_employee:
             # Perform check-out

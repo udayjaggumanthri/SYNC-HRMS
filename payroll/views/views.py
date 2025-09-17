@@ -48,6 +48,10 @@ from payroll.forms.component_forms import (
     PayrollSettingsForm,
     PayslipAutoGenerateForm,
 )
+from payroll.forms.forms import (
+    StatutoryComplianceForm,
+    StatutoryComplianceUpdateForm,
+)
 from payroll.methods.methods import paginator_qry, save_payslip
 from payroll.models.models import (
     Contract,
@@ -58,6 +62,7 @@ from payroll.models.models import (
     Reimbursement,
     ReimbursementFile,
     ReimbursementrequestComment,
+    StatutoryCompliance,
 )
 from payroll.models.tax_models import PayrollSettings
 
@@ -1939,3 +1944,219 @@ def delete_auto_payslip(request, auto_id):
     except PayslipAutoGenerate.DoesNotExist:
         messages.error(request, _("Payslip auto generate not found."))
     return HttpResponseRedirect(request.META.get("HTTP_REFERER", "/"))
+
+
+# Statutory Compliance Views
+
+@login_required
+@permission_required("payroll.add_statutorycompliance")
+def statutory_compliance_create(request):
+    """
+    Create statutory compliance for an employee
+    """
+    form = StatutoryComplianceForm()
+    if request.method == "POST":
+        form = StatutoryComplianceForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, _("Statutory compliance created successfully."))
+            return HttpResponseRedirect(reverse("statutory-compliance-list"))
+        else:
+            # Form has errors, display them
+            messages.error(request, _("Please correct the errors below."))
+    return render(request, "payroll/statutory_compliance/create.html", {"form": form})
+
+
+@login_required
+@permission_required("payroll.view_statutorycompliance")
+def statutory_compliance_list(request):
+    """
+    List all statutory compliance records with filtering and search
+    """
+    queryset = StatutoryCompliance.objects.all()
+    
+    # Search functionality
+    search = request.GET.get("search")
+    if search:
+        queryset = queryset.filter(
+            Q(employee_id__employee_first_name__icontains=search) |
+            Q(employee_id__employee_last_name__icontains=search) |
+            Q(pf_number__icontains=search) |
+            Q(pf_uan__icontains=search) |
+            Q(esi_number__icontains=search) |
+            Q(pt_state__icontains=search) |
+            Q(lwf_state__icontains=search)
+        )
+    
+    # Sorting
+    sortby = request.GET.get("sortby")
+    if sortby:
+        queryset = queryset.order_by(sortby)
+    else:
+        queryset = queryset.order_by("-id")
+    
+    page_number = request.GET.get("page")
+    statutory_compliances = paginator_qry(queryset, page_number)
+    
+    # Get IDs for modal functionality
+    statutory_compliance_ids = list(queryset.values_list("id", flat=True))
+    
+    return render(
+        request,
+        "payroll/statutory_compliance/list.html",
+        {
+            "statutory_compliances": statutory_compliances,
+            "statutory_compliance_ids": statutory_compliance_ids,
+            "pd": request.GET.urlencode(),
+        },
+    )
+
+
+@login_required
+@permission_required("payroll.view_statutorycompliance")
+def filter_statutory_compliance(request):
+    """
+    Filter statutory compliance records with HTMX
+    """
+    queryset = StatutoryCompliance.objects.all()
+    
+    # Search functionality
+    search = request.GET.get("search")
+    if search:
+        queryset = queryset.filter(
+            Q(employee_id__employee_first_name__icontains=search) |
+            Q(employee_id__employee_last_name__icontains=search) |
+            Q(pf_number__icontains=search) |
+            Q(pf_uan__icontains=search) |
+            Q(esi_number__icontains=search) |
+            Q(pt_state__icontains=search) |
+            Q(lwf_state__icontains=search)
+        )
+    
+    # Sorting
+    sortby = request.GET.get("sortby")
+    if sortby:
+        queryset = queryset.order_by(sortby)
+    else:
+        queryset = queryset.order_by("-id")
+    
+    page_number = request.GET.get("page")
+    statutory_compliances = paginator_qry(queryset, page_number)
+    
+    # Get IDs for modal functionality
+    statutory_compliance_ids = list(queryset.values_list("id", flat=True))
+    
+    return render(
+        request,
+        "payroll/statutory_compliance/statutory_compliance_list.html",
+        {
+            "statutory_compliances": statutory_compliances,
+            "statutory_compliance_ids": statutory_compliance_ids,
+            "pd": request.GET.urlencode(),
+        },
+    )
+
+
+@login_required
+@permission_required("payroll.view_statutorycompliance")
+def statutory_compliance_view(request, obj_id):
+    """
+    View statutory compliance details
+    """
+    statutory_compliance = get_object_or_404(StatutoryCompliance, id=obj_id)
+    return render(
+        request,
+        "payroll/statutory_compliance/view.html",
+        {"statutory_compliance": statutory_compliance},
+    )
+
+
+@login_required
+@permission_required("payroll.change_statutorycompliance")
+def statutory_compliance_update(request, obj_id):
+    """
+    Update statutory compliance
+    """
+    statutory_compliance = get_object_or_404(StatutoryCompliance, id=obj_id)
+    form = StatutoryComplianceUpdateForm(instance=statutory_compliance)
+    if request.method == "POST":
+        form = StatutoryComplianceUpdateForm(request.POST, instance=statutory_compliance)
+        if form.is_valid():
+            form.save()
+            messages.success(request, _("Statutory compliance updated successfully."))
+            return HttpResponseRedirect(reverse("statutory-compliance-list"))
+        else:
+            # Form has errors, display them
+            messages.error(request, _("Please correct the errors below."))
+    return render(
+        request,
+        "payroll/statutory_compliance/update.html",
+        {"form": form, "statutory_compliance": statutory_compliance},
+    )
+
+
+@login_required
+@permission_required("payroll.delete_statutorycompliance")
+def statutory_compliance_delete(request, obj_id):
+    """
+    Delete statutory compliance
+    """
+    try:
+        statutory_compliance = get_object_or_404(StatutoryCompliance, id=obj_id)
+        statutory_compliance.delete()
+        messages.success(request, _("Statutory compliance deleted successfully."))
+    except ProtectedError:
+        messages.error(request, _("Cannot delete this statutory compliance."))
+    return HttpResponseRedirect(request.META.get("HTTP_REFERER", "/"))
+
+
+@login_required
+@permission_required("payroll.add_statutorycompliance")
+def employee_statutory_compliance_create(request, emp_id):
+    """
+    Create statutory compliance for a specific employee
+    """
+    employee = get_object_or_404(Employee, id=emp_id)
+    form = StatutoryComplianceForm(initial={"employee_id": employee})
+    if request.method == "POST":
+        form = StatutoryComplianceForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, _("Statutory compliance created successfully."))
+            return HttpResponseRedirect(reverse("employee-view", args=[emp_id]))
+    return render(
+        request,
+        "payroll/statutory_compliance/employee_create.html",
+        {"form": form, "employee": employee},
+    )
+
+
+@login_required
+@permission_required("payroll.change_statutorycompliance")
+def employee_statutory_compliance_update(request, emp_id):
+    """
+    Update statutory compliance for a specific employee
+    """
+    employee = get_object_or_404(Employee, id=emp_id)
+    try:
+        statutory_compliance = StatutoryCompliance.objects.get(employee_id=employee)
+        form = StatutoryComplianceUpdateForm(instance=statutory_compliance)
+        if request.method == "POST":
+            form = StatutoryComplianceUpdateForm(request.POST, instance=statutory_compliance)
+            if form.is_valid():
+                form.save()
+                messages.success(request, _("Statutory compliance updated successfully."))
+                return HttpResponseRedirect(reverse("employee-view", args=[emp_id]))
+    except StatutoryCompliance.DoesNotExist:
+        form = StatutoryComplianceForm(initial={"employee_id": employee})
+        if request.method == "POST":
+            form = StatutoryComplianceForm(request.POST)
+            if form.is_valid():
+                form.save()
+                messages.success(request, _("Statutory compliance created successfully."))
+                return HttpResponseRedirect(reverse("employee-view", args=[emp_id]))
+    return render(
+        request,
+        "payroll/statutory_compliance/employee_update.html",
+        {"form": form, "employee": employee},
+    )

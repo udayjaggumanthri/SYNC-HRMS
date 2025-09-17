@@ -45,6 +45,7 @@ urlpatterns = [
     path("health/", health_check),
     path("api/v1/", include("horilla_api.urls")),
     path("api/facedetection/", include("facedetection.urls")),  # Face Detection URLs
+    path("api/geofencing/", include("geofencing.urls")),  # Geofencing URLs
     path("chart-bot/", include("chart_bot.urls")),  # Chart Bot URLs
     path("chart-bot-v2/", include("chart_bot.urls_v2")),  # Professional Chart Bot URLs
     path("chart-bot-direct/", include("chart_bot.urls_direct")),  # Direct Chart Bot URLs (bypasses auth issues)

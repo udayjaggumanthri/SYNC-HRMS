@@ -197,4 +197,45 @@ urlpatterns = [
         views.activate_auto_payslip_generate,
         name="activate-auto-payslip-generate",
     ),
+    # Statutory Compliance URLs
+    path(
+        "statutory-compliance-create",
+        views.statutory_compliance_create,
+        name="statutory-compliance-create",
+    ),
+    path(
+        "statutory-compliance-list",
+        views.statutory_compliance_list,
+        name="statutory-compliance-list",
+    ),
+    path(
+        "statutory-compliance-view/<int:obj_id>",
+        views.statutory_compliance_view,
+        name="statutory-compliance-view",
+    ),
+    path(
+        "statutory-compliance-update/<int:obj_id>",
+        views.statutory_compliance_update,
+        name="statutory-compliance-update",
+    ),
+    path(
+        "statutory-compliance-delete/<int:obj_id>",
+        views.statutory_compliance_delete,
+        name="statutory-compliance-delete",
+    ),
+    path(
+        "employee-statutory-compliance-create/<int:emp_id>",
+        views.employee_statutory_compliance_create,
+        name="employee-statutory-compliance-create",
+    ),
+    path(
+        "employee-statutory-compliance-update/<int:emp_id>",
+        views.employee_statutory_compliance_update,
+        name="employee-statutory-compliance-update",
+    ),
+    path(
+        "filter-statutory-compliance",
+        views.filter_statutory_compliance,
+        name="filter-statutory-compliance",
+    ),
 ]
