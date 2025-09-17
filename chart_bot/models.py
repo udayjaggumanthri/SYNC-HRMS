@@ -1,5 +1,5 @@
 """
-Chart Bot Models
+Chart Bot Models...
 """
 from django.db import models
 from django.contrib.auth.models import User
